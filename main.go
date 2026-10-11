@@ -2,14 +2,14 @@ package main
 
 import (
 	"os"
-	usecases "tig/application/use-cases"
-	"tig/infrastructure/consts"
-	"tig/infrastructure/persistence/repositories"
-	infrastructureServices "tig/infrastructure/services"
-	"tig/representation/cli/cmds"
-	"tig/representation/cli/settings"
-	"tig/representation/schemas"
-	representationServices "tig/representation/services"
+	usecases "tig/app/application/use-cases"
+	"tig/app/infrastructure/consts"
+	"tig/app/infrastructure/persistence/repositories"
+	infrastructureServices "tig/app/infrastructure/services"
+	"tig/app/representation/cli/cmds"
+	"tig/app/representation/cli/settings"
+	"tig/app/representation/schemas"
+	representationServices "tig/app/representation/services"
 
 	urfave "github.com/urfave/cli/v2"
 )
@@ -21,24 +21,38 @@ func main() {
 	preExecution()
 
 	gitService := infrastructureServices.NewGitService(fsService, jsonService)
-	organizationRepository := repositories.NewOrganizationRepository(jsonService, fsService)
+	organizationRepository := repositories.NewOrganizationRepository(jsonService, fsService, gitService)
 
-	getRepositoryHostsUseCase := usecases.NewGetRepositoryHostsUseCase()
+	// getRepositoryHostsUseCase := usecases.NewGetRepositoryHostsUseCase()
 	newGetUsersUseCase := usecases.NewGetUsersUseCase(organizationRepository, gitService)
 	addNewUserUseCase := usecases.NewAddNewUserUseCase(organizationRepository, gitService)
 	removeUserUseCase := usecases.NewRemoveUserUseCase(organizationRepository, gitService)
 	checkoutUserUseCase := usecases.NewCheckoutUserUseCase(organizationRepository, gitService)
 	getUserGitConfigUseCase := usecases.NewGetUserGitConfigUseCase(organizationRepository, gitService)
+	generateKeysUserUseCase := usecases.NewGenerateKeysUserUseCase(organizationRepository, gitService)
+
+	addRepositoryUseCase := usecases.NewAddNewRepositoryUseCase(organizationRepository, gitService)
+	removeRepoistoryUseCase := usecases.NewRemoveRepositoryUseCase(organizationRepository, gitService)
+	getRepositoriesUseCase := usecases.NewGetRepositoriesUseCase(organizationRepository)
+	cloneRepositoryUseCase := usecases.NewDownloadRepositoriesUseCase(organizationRepository, gitService, fsService)
 
 	printService := representationServices.NewPrintService()
 
 	var addUserCmd schemas.CmdSchema = cmds.NewAddUserCmd(addNewUserUseCase)
 	var removeUserCmd schemas.CmdSchema = cmds.NewRemoveUserCmd(removeUserUseCase)
-	var listUserCmd schemas.CmdSchema = cmds.NewListUsersCmd(getRepositoryHostsUseCase, newGetUsersUseCase, getUserGitConfigUseCase, printService)
+	var listUserCmd schemas.CmdSchema = cmds.NewListUsersCmd(newGetUsersUseCase, printService)
 	var checkoutUserCmd schemas.CmdSchema = cmds.NewCheckoutUserCmd(checkoutUserUseCase)
+	var listUserGitConfigCmd schemas.CmdSchema = cmds.NewListUserGitConfigCmd(getUserGitConfigUseCase, printService)
+
+	var addRepositoryCmd schemas.CmdSchema = cmds.NewAddRepositoryCmd(addRepositoryUseCase)
+	var removeRepositoryCmd schemas.CmdSchema = cmds.NewRemoveRepositoryCmd(removeRepoistoryUseCase)
+	var listRepositoriesCmd schemas.CmdSchema = cmds.NewListRepositoriesCmd(getRepositoriesUseCase, printService)
+	var cloneRepositoriesCmd schemas.CmdSchema = cmds.NewCloneRepositoriesCmd(cloneRepositoryUseCase)
+	var generateKeysUser schemas.CmdSchema = cmds.NewGenerateKeysUser(generateKeysUserUseCase)
 
 	commands := settings.BuildCLI(settings.CmdCollections{
-		User: []schemas.CmdSchema{addUserCmd, removeUserCmd, listUserCmd, checkoutUserCmd},
+		User:       []schemas.CmdSchema{addUserCmd, removeUserCmd, listUserCmd, checkoutUserCmd, listUserGitConfigCmd, generateKeysUser},
+		Repository: []schemas.CmdSchema{addRepositoryCmd, removeRepositoryCmd, listRepositoriesCmd, cloneRepositoriesCmd},
 	})
 
 	app := &urfave.App{

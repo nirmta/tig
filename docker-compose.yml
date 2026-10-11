@@ -1,0 +1,52 @@
+services:
+  # app 
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: dev
+    container_name: tig-app-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+  
+  app-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: build
+    container_name: tig-app-build
+    working_dir: /app
+    volumes:
+      - ./dist:/app/dist
+
+  app-release:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: release
+    container_name: tig-app-release
+    working_dir: /app
+  
+  # doc
+  doc-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.doc
+      target: dev
+    container_name: tig-doc-dev
+    working_dir: /doc
+    volumes:
+      - ./doc:/doc
+
+  doc-live:
+    build:
+      context: .
+      dockerfile: Dockerfile.doc
+      target: live
+    container_name: tig-doc-live
+    working_dir: /doc
+    volumes:
+      - ./doc:/doc
+    ports:
+      - "8001:8001"

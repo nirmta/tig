@@ -1,0 +1,38 @@
+# Dev
+FROM python:3.12-alpine AS dev
+
+WORKDIR /doc
+
+RUN apk add --no-cache \
+    git \
+    build-base \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir mkdocs-material==9.7.7
+
+CMD ["sleep", "infinity"]
+
+
+# Live
+FROM python:3.12-alpine AS live
+
+WORKDIR /doc
+
+RUN apk add --no-cache \
+    git \
+    build-base \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir mkdocs-material==9.7.7
+
+EXPOSE 8001
+
+CMD ["mkdocs", "serve", "--dev-addr=0.0.0.0:8001", "--livereload"]

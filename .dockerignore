@@ -1,0 +1,6 @@
+Dockerfile.app
+Dockerfile.doc
+README.md
+docker-compose.yml
+
+dist/
