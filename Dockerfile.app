@@ -7,6 +7,9 @@ RUN apk update && \
     apk upgrade && \
     apk add --no-cache git
 
+RUN go install
+RUN go install github.com/goreleaser/goreleaser/v2@v2.17.1
+
 CMD ["sleep", "infinity"]
 
 # Builder
@@ -24,7 +27,7 @@ RUN go install
 RUN go install github.com/goreleaser/goreleaser/v2@v2.17.1
 
 # Fix --clean problem
-CMD ["goreleaser", "build", "--snapshot"]
+CMD ["goreleaser", "release", "--snapshot"]
 
 # Releaser
 FROM golang:1.26.5-alpine AS release
