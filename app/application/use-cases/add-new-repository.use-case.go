@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 	RepositoryEntity "tig/app/domain/entities/repository"
@@ -23,19 +24,15 @@ func NewAddNewRepositoryUseCase(organizationRepository repositories.Organization
 	}
 }
 
-func (anr *AddNewRepositoryUseCase) Execute(input AddNewRepositoryUseCaseInput) {
+func (anr *AddNewRepositoryUseCase) Execute(input AddNewRepositoryUseCaseInput) (bool, error) {
 	user, err := anr.organizationRepository.GetCurrentUser()
 
 	if foundRepository := user.FindRepositoryByAlias(input.Alias); foundRepository != nil {
-		return
+		return false, errors.New("repository already exists")
 	}
 
-	if err != nil {
-		return
-	}
-
-	if user == nil {
-		return
+	if err != nil || user == nil {
+		return false, errors.New("user not found")
 	}
 
 	newRepository := RepositoryEntity.Constructor(RepositoryEntity.RepositoryDraft{
@@ -46,11 +43,16 @@ func (anr *AddNewRepositoryUseCase) Execute(input AddNewRepositoryUseCaseInput) 
 	user.AddRepository(newRepository)
 
 	org, err := anr.organizationRepository.GetUnique()
-
 	if err != nil {
-		return
+		return false, errors.New("organization not found")
 	}
 
 	org.UpdateUser(user)
-	anr.organizationRepository.Update(org)
+	err = anr.organizationRepository.Update(org)
+
+	if err != nil {
+		return false, errors.New("error updating organization")
+	}
+
+	return true, nil
 }

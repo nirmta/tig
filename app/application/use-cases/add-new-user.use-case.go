@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 	UserEntity "tig/app/domain/entities/user"
@@ -29,8 +30,12 @@ func NewAddNewUserUseCase(organizationRepository repositories.OrganizationReposi
 	}
 }
 
-func (anu *AddNewUserUseCase) Execute(input AddNewUserUseCaseInput) {
-	anu.gitService.CreateSSHKey(input.User.Alias, input.User.Email)
+func (anu *AddNewUserUseCase) Execute(input AddNewUserUseCaseInput) (bool, error) {
+	createdShhKey := anu.gitService.CreateSSHKey(input.User.Alias, input.User.Email)
+	if !createdShhKey {
+		return false, errors.New("fail creating ssh key")
+	}
+
 	identityFile := anu.gitService.GetPrivateKeyPath(input.User.Alias)
 
 	userDraf := UserEntity.UserDraft{
@@ -42,8 +47,22 @@ func (anu *AddNewUserUseCase) Execute(input AddNewUserUseCaseInput) {
 	}
 
 	newUser := UserEntity.Constructor(userDraf)
-	org, _ := anu.organizationRepository.GetUnique()
+	org, err := anu.organizationRepository.GetUnique()
+	if err != nil || org == nil {
+		return false, errors.New("organization not found")
+	}
+
 	org.AddUser(newUser)
-	anu.organizationRepository.Update(org)
-	anu.gitService.GenerateSSHConfig(org.GetUsers())
+
+	err = anu.organizationRepository.Update(org)
+	if err != nil {
+		return false, errors.New("fail updating organization")
+	}
+
+	generatedSSHConfig := anu.gitService.GenerateSSHConfig(org.GetUsers())
+	if !generatedSSHConfig {
+		return false, errors.New("fail creating setting up ssh config")
+	}
+
+	return true, nil
 }

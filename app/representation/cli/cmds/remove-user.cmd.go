@@ -41,6 +41,6 @@ func (ru *RemoveUserCmd) BuildFlags() []cli.Flag {
 
 func (ru *RemoveUserCmd) BuildAction(cCtx *cli.Context) error {
 	userAlias := cCtx.String(flags.UserAlias)
-	ru.removeUserUseCase.Execute(userAlias)
-	return nil
+	_, err := ru.removeUserUseCase.Execute(userAlias)
+	return err
 }

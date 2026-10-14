@@ -46,10 +46,10 @@ func (ar *AddRepositoryCmd) BuildFlags() []cli.Flag {
 }
 
 func (ar *AddRepositoryCmd) BuildAction(cCtx *cli.Context) error {
-	ar.addNewRepositoryUseCase.Execute(usecases.AddNewRepositoryUseCaseInput{
+	_, err := ar.addNewRepositoryUseCase.Execute(usecases.AddNewRepositoryUseCaseInput{
 		Alias:  cCtx.String(flags.RepositoryAlias),
 		Origin: cCtx.String(flags.RepositoryOrigin),
 	})
 
-	return nil
+	return err
 }

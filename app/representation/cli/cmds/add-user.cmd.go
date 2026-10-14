@@ -67,6 +67,6 @@ func (au *AddUserCmd) BuildAction(cCtx *cli.Context) error {
 		},
 	}
 
-	au.addNewUserUseCase.Execute(addNewUserUseCaseInput)
-	return nil
+	_, err := au.addNewUserUseCase.Execute(addNewUserUseCaseInput)
+	return err
 }

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 )
@@ -23,22 +24,24 @@ func NewDownloadRepositoriesUseCase(
 	}
 }
 
-func (dr *DownloadRepositoriesUseCase) Execute() {
-	user, _ := dr.organizationRepository.GetCurrentUser()
-
-	if user == nil {
-		return
+func (dr *DownloadRepositoriesUseCase) Execute() (bool, error) {
+	user, err := dr.organizationRepository.GetCurrentUser()
+	if err != nil || user == nil {
+		return false, errors.New("user not found")
 	}
 
 	repositories := user.Repositories()
+	if len(repositories) == 0 {
+		return false, errors.New("repositories not found")
+	}
 
 	userPath := user.Alias() + "-repositories"
-	if len(repositories) > 0 {
-		dr.fsService.CreateDirectory(userPath)
-	}
+	dr.fsService.CreateDirectory(userPath)
 
 	for _, repository := range repositories {
 		repositoryPath := "./" + userPath + "/" + repository.Alias()
 		dr.gitService.CloneRepository(repository.Origin(), repositoryPath)
 	}
+
+	return true, nil
 }

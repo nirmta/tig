@@ -40,6 +40,6 @@ func (co *CheckoutUserCmd) BuildFlags() []cli.Flag {
 
 func (co *CheckoutUserCmd) BuildAction(cCtx *cli.Context) error {
 	userAlias := cCtx.String(flags.UserAlias)
-	co.checkoutUserUseCase.Execute(userAlias)
-	return nil
+	_, err := co.checkoutUserUseCase.Execute(userAlias)
+	return err
 }

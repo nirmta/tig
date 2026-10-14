@@ -37,7 +37,11 @@ func (ld *ListRepositoriesCmd) BuildFlags() []cli.Flag {
 }
 
 func (ld *ListRepositoriesCmd) BuildAction(cCtx *cli.Context) error {
-	repositories := ld.getRepositoriesUseCase.Execute()
+	repositories, err := ld.getRepositoriesUseCase.Execute()
+
+	if err != nil {
+		return err
+	}
 
 	table := [][]string{
 		{"Alias", "Origin"},
@@ -48,6 +52,5 @@ func (ld *ListRepositoriesCmd) BuildAction(cCtx *cli.Context) error {
 	}
 
 	ld.printService.RenderTable(table)
-
 	return nil
 }

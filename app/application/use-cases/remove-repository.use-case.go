@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 )
@@ -17,15 +18,23 @@ func NewRemoveRepositoryUseCase(organizationRepository repositories.Organization
 	}
 }
 
-func (rr *RemoveRepositoryUseCase) Execute(alias string) {
-	user, error := rr.organizationRepository.GetCurrentUser()
-
-	if error != nil {
-		return
+func (rr *RemoveRepositoryUseCase) Execute(alias string) (bool, error) {
+	user, err := rr.organizationRepository.GetCurrentUser()
+	if user == nil || err != nil {
+		return false, errors.New("current user not found")
 	}
 
 	user.RemoveRepositoryByAlias(alias)
-	org, _ := rr.organizationRepository.GetUnique()
+	org, err := rr.organizationRepository.GetUnique()
+	if err != nil || org == nil {
+		return false, errors.New("organization not found")
+	}
+
 	org.UpdateUser(user)
-	rr.organizationRepository.Update(org)
+	err = rr.organizationRepository.Update(org)
+	if err != nil {
+		return false, errors.New("fail updating repositories")
+	}
+
+	return false, nil
 }

@@ -37,7 +37,10 @@ func (ld *ListUsersCmd) BuildFlags() []cli.Flag {
 }
 
 func (ld *ListUsersCmd) BuildAction(cCtx *cli.Context) error {
-	users := ld.getUsersUseCase.Execute()
+	users, err := ld.getUsersUseCase.Execute()
+	if err != nil {
+		return err
+	}
 
 	table := [][]string{
 		{"Alias", "User Name", "Email", "Repository"},
@@ -54,6 +57,5 @@ func (ld *ListUsersCmd) BuildAction(cCtx *cli.Context) error {
 	}
 
 	ld.printService.RenderTable(table)
-
 	return nil
 }

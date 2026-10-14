@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 )
@@ -22,15 +23,16 @@ type GetUserGitConfigUseCaseOutput struct {
 }
 
 func (gupk *GetUserGitConfigUseCase) Execute() (GetUserGitConfigUseCaseOutput, error) {
-	currentUser, _ := gupk.organizationRepository.GetCurrentUser()
+	user, err := gupk.organizationRepository.GetCurrentUser()
 	var getUserGitConfigUseCaseOutput GetUserGitConfigUseCaseOutput
-	user, err := gupk.organizationRepository.GetUserByAlias(currentUser.Alias())
-
-	if user == nil {
-		return getUserGitConfigUseCaseOutput, err
+	if err != nil || user == nil {
+		return getUserGitConfigUseCaseOutput, errors.New("user not found")
 	}
 
-	userSSHConfig, _ := gupk.gitService.GetUserSSHConfig(user.Alias())
+	userSSHConfig, err := gupk.gitService.GetUserSSHConfig(user.Alias())
+	if err != nil {
+		return getUserGitConfigUseCaseOutput, errors.New("user ssh config not found")
+	}
 
 	getUserGitConfigUseCaseOutput.PublicKey = userSSHConfig.PublicKey
 	return getUserGitConfigUseCaseOutput, nil

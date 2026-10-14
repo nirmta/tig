@@ -31,6 +31,6 @@ func (gku *GenerateKeysUser) BuildFlags() []cli.Flag {
 }
 
 func (gku *GenerateKeysUser) BuildAction(cCtx *cli.Context) error {
-	gku.generateKeysUserUseCase.Execute()
-	return nil
+	_, err := gku.generateKeysUserUseCase.Execute()
+	return err
 }

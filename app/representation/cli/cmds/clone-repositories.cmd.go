@@ -31,6 +31,6 @@ func (ar *CloneRepositoriesCmd) BuildFlags() []cli.Flag {
 }
 
 func (ar *CloneRepositoriesCmd) BuildAction(cCtx *cli.Context) error {
-	ar.downloadRepositoriesUseCase.Execute()
-	return nil
+	_, err := ar.downloadRepositoriesUseCase.Execute()
+	return err
 }

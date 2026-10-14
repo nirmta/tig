@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	RepositoryEntity "tig/app/domain/entities/repository"
 )
@@ -15,14 +16,13 @@ func NewGetRepositoriesUseCase(organizationRepository repositories.OrganizationR
 	}
 }
 
-func (gr *GetRepositoriesUseCase) Execute() []*RepositoryEntity.Repository {
-	user, _ := gr.organizationRepository.GetCurrentUser()
+func (gr *GetRepositoriesUseCase) Execute() ([]*RepositoryEntity.Repository, error) {
+	user, err := gr.organizationRepository.GetCurrentUser()
 
-	if user == nil {
-		return []*RepositoryEntity.Repository{}
+	if user == nil || err != nil {
+		return []*RepositoryEntity.Repository{}, errors.New("user not found")
 	}
 
 	repositories := user.Repositories()
-
-	return repositories
+	return repositories, nil
 }

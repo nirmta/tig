@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 	UserEntity "tig/app/domain/entities/user"
@@ -18,8 +19,13 @@ func NewGetUsersUseCase(organizationRepository repositories.OrganizationReposito
 	}
 }
 
-func (gu *GetUsersUseCase) Execute() []*UserEntity.User {
-	org, _ := gu.organizationRepository.GetUnique()
+func (gu *GetUsersUseCase) Execute() ([]*UserEntity.User, error) {
+	org, err := gu.organizationRepository.GetUnique()
+	var users = []*UserEntity.User{}
+	if org == nil || err != nil {
+		return users, errors.New("organization not found")
+	}
+
 	gitGlobalConfig, _ := gu.gitService.GetGlobalSettings()
 	user, _ := gu.organizationRepository.GetUserByEmail(gitGlobalConfig.Email)
 
@@ -28,5 +34,6 @@ func (gu *GetUsersUseCase) Execute() []*UserEntity.User {
 	}
 
 	org.UpdateUser(user)
-	return org.GetUsers()
+	users = org.GetUsers()
+	return users, nil
 }

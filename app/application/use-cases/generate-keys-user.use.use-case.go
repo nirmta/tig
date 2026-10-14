@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"tig/app/application/repositories"
 	"tig/app/application/services"
 )
@@ -17,13 +18,21 @@ func NewGenerateKeysUserUseCase(organizationRepository repositories.Organization
 	}
 }
 
-func (gku *GenerateKeysUserUseCase) Execute() {
-	user, _ := gku.organizationRepository.GetCurrentUser()
-
-	if user == nil {
-		return
+func (gku *GenerateKeysUserUseCase) Execute() (bool, error) {
+	user, err := gku.organizationRepository.GetCurrentUser()
+	if err != nil || user == nil {
+		return false, errors.New("user not found")
 	}
 
-	gku.gitService.RemoveSSHKey(user.Alias())
-	gku.gitService.CreateSSHKey(user.Alias(), user.Email())
+	removedSSHKey := gku.gitService.RemoveSSHKey(user.Alias())
+	if !removedSSHKey {
+		return false, errors.New("fail removing ssh key")
+	}
+
+	createdSSHKey := gku.gitService.CreateSSHKey(user.Alias(), user.Email())
+	if !createdSSHKey {
+		return false, errors.New("fail created ssh key")
+	}
+
+	return true, nil
 }

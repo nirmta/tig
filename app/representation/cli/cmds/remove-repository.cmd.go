@@ -41,6 +41,6 @@ func (rr *RemoveRepositoryCmd) BuildFlags() []cli.Flag {
 
 func (rr *RemoveRepositoryCmd) BuildAction(cCtx *cli.Context) error {
 	repositoryAlias := cCtx.String(flags.RepositoryAlias)
-	rr.removeRepositoryUseCase.Execute(repositoryAlias)
-	return nil
+	_, err := rr.removeRepositoryUseCase.Execute(repositoryAlias)
+	return err
 }

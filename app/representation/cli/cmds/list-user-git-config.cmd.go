@@ -37,7 +37,11 @@ func (lugc *ListUserGitConfigCmd) BuildFlags() []cli.Flag {
 }
 
 func (lugc *ListUserGitConfigCmd) BuildAction(cCtx *cli.Context) error {
-	userGitConfig, _ := lugc.getUserGitConfigUseCase.Execute()
+	userGitConfig, err := lugc.getUserGitConfigUseCase.Execute()
+
+	if err != nil {
+		return err
+	}
 
 	lugc.printService.Println("=== PUBLIC KEY ===")
 	lugc.printService.Println(userGitConfig.PublicKey)
