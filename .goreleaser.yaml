@@ -48,3 +48,15 @@ homebrew_casks:
 
     binaries:
       - tig
+
+nfpms:
+  - id: tig
+    package_name: tig
+    vendor: nirmta
+    homepage: "https://github.com/nirmta/tig"
+    maintainer: "nirmta"
+    description: "User git credentials manager"
+    license: MIT
+    formats:
+      - deb
+    bindir: /usr/bin
