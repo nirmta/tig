@@ -1,8 +1,8 @@
-package UserEntity
+package user
 
 import (
 	"tig/app/domain/constants"
-	RepositoryEntity "tig/app/domain/entities/repository"
+	"tig/app/domain/entities/repository"
 )
 
 type User struct {
@@ -12,7 +12,7 @@ type User struct {
 	host         string
 	identityFile string
 	inGlobal     bool
-	repositories []*RepositoryEntity.Repository
+	repositories []*repository.Repository
 }
 
 func (u *User) UpdateName(name string) {
@@ -59,18 +59,18 @@ func (u *User) InGlobal() bool {
 	return u.inGlobal
 }
 
-func (u *User) Repositories() []*RepositoryEntity.Repository {
+func (u *User) Repositories() []*repository.Repository {
 	return u.repositories
 }
 
-func (u *User) AddRepository(newRepository *RepositoryEntity.Repository) {
+func (u *User) AddRepository(newRepository *repository.Repository) {
 	u.repositories = append(u.repositories, newRepository)
 }
 
-func (u *User) FindRepositoryByAlias(alias string) *RepositoryEntity.Repository {
-	for _, repository := range u.repositories {
-		if repository.Alias() == alias {
-			return repository
+func (u *User) FindRepositoryByAlias(alias string) *repository.Repository {
+	for _, repo := range u.repositories {
+		if repo.Alias() == alias {
+			return repo
 		}
 	}
 
@@ -78,11 +78,11 @@ func (u *User) FindRepositoryByAlias(alias string) *RepositoryEntity.Repository 
 }
 
 func (u *User) RemoveRepositoryByAlias(repositoryAlias string) {
-	var filteredRepositories []*RepositoryEntity.Repository
+	var filteredRepositories []*repository.Repository
 
-	for _, repository := range u.repositories {
-		if repository.Alias() != repositoryAlias {
-			filteredRepositories = append(filteredRepositories, repository)
+	for _, repo := range u.repositories {
+		if repo.Alias() != repositoryAlias {
+			filteredRepositories = append(filteredRepositories, repo)
 		}
 	}
 

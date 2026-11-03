@@ -1,75 +1,157 @@
-# TIG
+# TIG (The Invisible Git)
 
-This CLI tool simplifies managing Git configurations across multiple repositories. It is organized by 'Organizations,' each containing all the essential information, making it easy to switch between SSH credentials and repository settings. Ideal for developers working with different credentials in various projects, this tool ensures seamless transitions and efficient workflow management.
+[![Go Report Card](https://goreportcard.com/badge/github.com/sneuder/tig)](https://goreportcard.com/report/github.com/sneuder/tig)
 
-## Steps for installation
+**TIG** simplifies managing multiple Git identities, OpenSSH keys, and repository configurations on a single workstation without manual SSH configuration editing.
 
-**0. Install dependencies**
-```
-sudo apt install openssh-client
-sudo apt install git
-```
+---
 
-**1. Download the executable file**
-```
-wget https://github.com/sneuder/tig/releases/download/v2.0.0/install.sh
-```
+## Features
 
-**2. Make the Script Executable**
-```
-sudo chmod +x install.sh
-```
+- **Multi-Identity Git Management**: Switch seamlessly between personal, work, and client identities.
+- **Automated OpenSSH Key Management**: Automatically generates key pairs and maintains `~/.ssh/config`.
+- **Smart Origin Transformation**: Automatically rewrites repository clone origins (e.g. `git@ssh.bitbucket.org:...` or `git@github.com:...`) to match the user's SSH Host alias (`<user-alias>:<path>`).
+- **Atomic TOML Persistence**: Configuration stored safely in `~/.tig/db.toml` with zero risk of partial file writes.
+- **Cross-Platform Release via GoReleaser**: Pre-built binaries and packages for Linux (`.deb`, `tar.gz`) and macOS (Homebrew tap, `tar.gz`).
+- **Clean Architecture & AAA Tests**: Production code separated from zero-mock unit and integration tests.
 
-**3. Run the Script**
-```
-sudo ./install.sh
-```
+---
 
-## Commands
+## Installation & Binary Paths
 
-- Add tig organization
-```
-tig add -o tig-sample -e sneuder@tig.com -n sneuder -p github
+### Prerequisites
+Ensure `git` and `openssh-client` are installed:
+```bash
+# Debian / Ubuntu
+sudo apt update && sudo apt install -y openssh-client git
+
+# macOS (Homebrew)
+brew install git openssh
 ```
 
-- List tig organization
+### macOS Installation (Homebrew)
+Install via the official TIG Homebrew tap:
+```bash
+brew tap nirmta/tig
+brew install tig
 ```
-tig ls
+*Installed path:*
+- Apple Silicon (M1/M2/M3/M4): `/opt/homebrew/bin/tig`
+- Intel Macs: `/usr/local/bin/tig`
+
+### Linux Installation (Debian / Ubuntu `.deb`)
+```bash
+wget https://github.com/nirmta/tig/releases/latest/download/tig_linux_amd64.deb
+sudo dpkg -i tig_linux_amd64.deb
+```
+*Installed path:* `/usr/bin/tig`
+
+### Manual Download (GoReleaser Archives)
+```bash
+# Linux
+curl -LO "https://github.com/nirmta/tig/releases/latest/download/tig_Linux_$(uname -m).tar.gz"
+tar -xzf tig_Linux_*.tar.gz
+sudo mv tig /usr/local/bin/
+
+# macOS
+curl -LO "https://github.com/nirmta/tig/releases/latest/download/tig_Darwin_$(uname -m).tar.gz"
+tar -xzf tig_Darwin_*.tar.gz
+sudo mv tig /usr/local/bin/
+```
+*Target system path:* `/usr/local/bin/tig`
+
+### Shell PATH Setup
+If you move the binary to `~/.local/bin` or use `go install`, ensure it is in your `PATH`:
+```bash
+# For zsh (~/.zshrc)
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+
+# For bash (~/.bashrc)
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 ```
 
-- Checkout tig organization
-```
-tig checkout <organization_name>
-```
+---
 
-- Remove tig organization
-```
-tig remove <organization_name>
-```
+## CLI Commands
 
-- Add ssh credentials to the ssh list
-> If a name is not provide, it is going to use your current organization
-```
-tig ssh add <organization_name>
-```
+### User Management (`tig user`)
 
-- Rebuild tig organization's credentials
-> If a name is not provide, it is going to use your current organization
-```
-tig ssh build <organization_name>
-```
+- **Add User Identity**:
+  ```bash
+  tig user add -a work -n "Jane Doe" -e "jane@company.com" -H b
+  # -H flag options: g (GitHub), b (Bitbucket), l (GitLab)
+  ```
 
-- Export tig organization's in json file
-```
-tig export
-```
+- **List Users**:
+  ```bash
+  tig user list
+  ```
 
-- Build tig organization from json file
-```
-tig build
-```
+- **Switch Active User**:
+  ```bash
+  tig user checkout -a work
+  ```
 
-- Help
+- **Generate SSH Key**:
+  ```bash
+  tig user generate
+  ```
+
+- **View Active Config & Public Key**:
+  ```bash
+  tig user config
+  ```
+
+- **Remove User**:
+  ```bash
+  tig user remove -a work
+  ```
+
+### Repository Management (`tig repository`)
+
+- **Add Repository** (Origin automatically transforms to alias routing):
+  ```bash
+  tig repository add -a backend -o git@ssh.bitbucket.org:mobohubbv2/mobohubb-backend-v2.git
+  # Saved in ~/.tig/db.toml as: work:mobohubbv2/mobohubb-backend-v2.git
+  ```
+
+- **List Repositories**:
+  ```bash
+  tig repository list
+  ```
+
+- **Batch Clone Repositories**:
+  ```bash
+  tig repository clone
+  # Clones all active user repositories into ./work/<repo-alias>/
+  ```
+
+- **Remove Repository**:
+  ```bash
+  tig repository remove -a backend
+  ```
+
+---
+
+## Documentation
+
+Full documentation is available via MkDocs in [`doc/`](doc/):
+
+```bash
+docker compose up doc-live
 ```
-tig help
+Open **http://localhost:8081** to view the live documentation site:
+- [Installation Guide](doc/docs/installation.md)
+- [Architecture & Conventions Guide](doc/docs/conventions.md)
+- [User Commands Reference](doc/docs/commands/user.md)
+- [Repository Commands Reference](doc/docs/commands/repository.md)
+
+---
+
+## Testing
+
+Run unit and integration tests inside Docker:
+
+```bash
+docker compose run --build --rm app-test
 ```

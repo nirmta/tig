@@ -9,6 +9,16 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: test
+    container_name: tig-app-test
+    working_dir: /app
+    volumes:
+      - .:/app
   
   app-build:
     build:
@@ -49,4 +59,4 @@ services:
     volumes:
       - ./doc:/doc
     ports:
-      - "8001:8001"
+      - "8081:8001"
