@@ -1,13 +1,31 @@
-package RepositoryEntity
+package repository
 
-type RepositoryDraft struct {
+import (
+	"strings"
+)
+
+type Draft struct {
 	Alias  string
 	Origin string
 }
 
-func Constructor(userDraft RepositoryDraft) *Repository {
+func New(draft Draft) (*Repository, error) {
+	if strings.TrimSpace(draft.Alias) == "" {
+		return nil, ErrEmptyAlias
+	}
+	if strings.TrimSpace(draft.Origin) == "" {
+		return nil, ErrEmptyOrigin
+	}
+
 	return &Repository{
-		alias:  userDraft.Alias,
-		origin: userDraft.Origin,
+		alias:  draft.Alias,
+		origin: draft.Origin,
+	}, nil
+}
+
+func Reconstitute(draft Draft) *Repository {
+	return &Repository{
+		alias:  draft.Alias,
+		origin: draft.Origin,
 	}
 }

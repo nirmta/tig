@@ -1,55 +1,55 @@
-package OrganizationEntity
+package organization
 
 import (
-	UserEntity "tig/app/domain/entities/user"
+	"tig/app/domain/entities/user"
 )
 
 type Organization struct {
-	users []*UserEntity.User
+	users []*user.User
 }
 
-func (o *Organization) SetUsers(users []*UserEntity.User) {
+func (o *Organization) SetUsers(users []*user.User) {
 	o.users = users
 }
 
-func (o *Organization) AddUser(user *UserEntity.User) {
-	foundUser := o.FindUserByAlias(user.Alias())
+func (o *Organization) AddUser(u *user.User) {
+	foundUser := o.FindUserByAlias(u.Alias())
 
 	if foundUser != nil {
 		return
 	}
 
-	o.users = append(o.users, user)
+	o.users = append(o.users, u)
 }
 
 func (o *Organization) RemoveUserByAlias(alias string) {
-	for i, user := range o.users {
-		if user.Alias() == alias {
+	for i, u := range o.users {
+		if u.Alias() == alias {
 			o.users = append(o.users[:i], o.users[i+1:]...)
 			break
 		}
 	}
 }
 
-func (o *Organization) FindUserByAlias(alias string) *UserEntity.User {
-	for _, user := range o.users {
-		if user.Alias() == alias {
-			return user
+func (o *Organization) FindUserByAlias(alias string) *user.User {
+	for _, u := range o.users {
+		if u.Alias() == alias {
+			return u
 		}
 	}
 
 	return nil
 }
 
-func (o *Organization) UpdateUser(updatedUser *UserEntity.User) {
-	for i, user := range o.users {
-		if user.Alias() == updatedUser.Alias() {
+func (o *Organization) UpdateUser(updatedUser *user.User) {
+	for i, u := range o.users {
+		if u.Alias() == updatedUser.Alias() {
 			o.users[i] = updatedUser
 			break
 		}
 	}
 }
 
-func (o *Organization) GetUsers() []*UserEntity.User {
+func (o *Organization) GetUsers() []*user.User {
 	return o.users
 }

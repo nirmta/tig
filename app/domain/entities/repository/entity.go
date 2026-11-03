@@ -1,4 +1,4 @@
-package RepositoryEntity
+package repository
 
 type Repository struct {
 	alias  string

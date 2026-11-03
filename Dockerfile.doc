@@ -16,7 +16,6 @@ RUN pip install --no-cache-dir mkdocs-material==9.7.7
 
 CMD ["sleep", "infinity"]
 
-
 # Live
 FROM python:3.12-alpine AS live
 
@@ -35,4 +34,4 @@ RUN pip install --no-cache-dir mkdocs-material==9.7.7
 
 EXPOSE 8001
 
-CMD ["mkdocs", "serve", "--dev-addr=0.0.0.0:8001", "--livereload"]
+CMD ["mkdocs", "serve", "--livereload"]
