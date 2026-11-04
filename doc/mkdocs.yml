@@ -9,3 +9,4 @@ nav:
   - Commands:
       - User Commands: commands/user.md
       - Repository Commands: commands/repository.md
+      - Backup & Restore: commands/backup_restore.md

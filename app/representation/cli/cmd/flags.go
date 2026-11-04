@@ -12,4 +12,8 @@ const (
 	FlagOrigin    = "origin"
 	FlagOriginShort = "o"
 	FlagPath      = "path"
+	FlagOutput    = "output"
+	FlagOutputShort = "o"
+	FlagInput     = "input"
+	FlagInputShort = "i"
 )

@@ -9,6 +9,7 @@ type Command interface {
 type CmdCollections struct {
 	User       []Command
 	Repository []Command
+	Root       []Command
 }
 
 func Build(cmdCollections CmdCollections) []*cli.Command {
@@ -22,7 +23,7 @@ func Build(cmdCollections CmdCollections) []*cli.Command {
 		repositoryCmds = append(repositoryCmds, repositoryCmd.BuildSetting())
 	}
 
-	return []*cli.Command{
+	commands := []*cli.Command{
 		{
 			Name:        "user",
 			Aliases:     []string{"u"},
@@ -36,4 +37,10 @@ func Build(cmdCollections CmdCollections) []*cli.Command {
 			Subcommands: repositoryCmds,
 		},
 	}
+
+	for _, root := range cmdCollections.Root {
+		commands = append(commands, root.BuildSetting())
+	}
+
+	return commands
 }

@@ -40,6 +40,8 @@ func main() {
 	removeRepositoryUseCase := usecase.NewRemoveRepositoryUseCase(organizationRepository, gitService)
 	getRepositoriesUseCase := usecase.NewGetRepositoriesUseCase(organizationRepository)
 	cloneRepositoryUseCase := usecase.NewDownloadRepositoriesUseCase(organizationRepository, gitService, fsService)
+	backupUseCase := usecase.NewBackupUseCase(tomlService)
+	restoreUseCase := usecase.NewRestoreUseCase(tomlService, organizationRepository, gitService)
 
 	printService := presenter.NewPrintService()
 
@@ -55,9 +57,13 @@ func main() {
 	listRepositoriesCmd := cmd.NewListRepositoriesCmd(getRepositoriesUseCase, printService)
 	cloneRepositoriesCmd := cmd.NewCloneRepositoriesCmd(cloneRepositoryUseCase)
 
+	backupCmd := cmd.NewBackupCmd(backupUseCase, printService)
+	restoreCmd := cmd.NewRestoreCmd(restoreUseCase, printService)
+
 	commands := cli.Build(cli.CmdCollections{
 		User:       []cli.Command{addUserCmd, removeUserCmd, listUserCmd, checkoutUserCmd, listUserGitConfigCmd, generateKeysUser},
 		Repository: []cli.Command{addRepositoryCmd, removeRepositoryCmd, listRepositoriesCmd, cloneRepositoriesCmd},
+		Root:       []cli.Command{backupCmd, restoreCmd},
 	})
 
 	app := &urfave.App{
