@@ -9,8 +9,7 @@
 - **Multi-Identity Git Management**: Switch seamlessly between personal, work, and client identities.
 - **Automated OpenSSH Key Generation & Agent Integration**: Generates Ed25519 / RSA keys and maintains your `~/.ssh/config` file automatically.
 - **Smart Origin Transformation**: Automatically transforms repository clone origins (e.g., `git@ssh.bitbucket.org:...` or `git@github.com:...`) to route through user-specific SSH host aliases.
-- **Atomic TOML Persistence**: Stores configurations safely in `~/.tig/db.toml` using atomic file writes to prevent corruption.
-- **Zero-Mock, AAA Integration & Unit Testing**: Full test coverage isolated in `test/unit` and `test/integration` executed through Docker containers.
+- **Backup & Safe Recovery**: Effortlessly export and restore configurations across workstations.
 
 ---
 
@@ -28,14 +27,14 @@ brew install git openssh
 
 ### Install with Official Script
 ```bash
-wget https://github.com/sneuder/tig/releases/download/v2.0.0/install.sh
+wget https://github.com/nirmta/tig/releases/download/v4.0.0-rc.5/install.sh
 chmod +x install.sh
 sudo ./install.sh
 ```
 
 ### Or Install via Go
 ```bash
-go install github.com/sneuder/tig@latest
+go install github.com/nirmta/tig@latest
 ```
 
 *For complete installation instructions, see the [Installation Guide](installation.md).*
@@ -62,8 +61,14 @@ go install github.com/sneuder/tig@latest
 
 4. **Add and clone repositories**:
    ```bash
-   tig repository add -a backend -o git@ssh.bitbucket.org:org/backend.git
+   tig repository add -a backend -o git@ssh.bitbucket.org:mycompany/backend-api.git
    tig repository clone
+   ```
+
+5. **Backup and restore**:
+   ```bash
+   tig backup -o ~/my-backup.toml
+   tig restore -i ~/my-backup.toml
    ```
 
 ---
@@ -71,6 +76,6 @@ go install github.com/sneuder/tig@latest
 ## Documentation Sections
 
 - [Installation Guide](installation.md): All installation methods, requirements, and troubleshooting.
-- [Architecture & Conventions](conventions.md): Clean Architecture principles, package layout, DDD patterns, and AAA testing standards.
 - [User Commands](commands/user.md): Detailed reference for managing user identities, switching accounts, and generating SSH keys.
 - [Repository Commands](commands/repository.md): Detailed reference for registering, listing, and cloning repositories with host alias resolution.
+- [Backup & Restore](commands/backup_restore.md): Exporting and recovering workstation configurations safely.

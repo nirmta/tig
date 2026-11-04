@@ -1,169 +1,93 @@
 # TIG (The Invisible Git)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/sneuder/tig)](https://goreportcard.com/report/github.com/sneuder/tig)
+[![Documentation](https://img.shields.io/badge/docs-online-blue)](https://tig-doc-nine.vercel.app/)
 
-**TIG** simplifies managing multiple Git identities, OpenSSH keys, and repository configurations on a single workstation without manual SSH configuration editing.
+**TIG** is a developer CLI tool built to solve a universal pain point: **managing multiple Git identities, OpenSSH keys, and repository configurations on a single machine without constantly breaking your setup.**
 
----
-
-## Features
-
-- **Multi-Identity Git Management**: Switch seamlessly between personal, work, and client identities.
-- **Automated OpenSSH Key Management**: Automatically generates key pairs and maintains `~/.ssh/config`.
-- **Smart Origin Transformation**: Automatically rewrites repository clone origins (e.g. `git@ssh.bitbucket.org:...` or `git@github.com:...`) to match the user's SSH Host alias (`<user-alias>:<path>`).
-- **Atomic TOML Persistence**: Configuration stored safely in `~/.tig/db.toml` with zero risk of partial file writes.
-- **Cross-Platform Release via GoReleaser**: Pre-built binaries and packages for Linux (`.deb`, `tar.gz`) and macOS (Homebrew tap, `tar.gz`).
-- **Clean Architecture & AAA Tests**: Production code separated from zero-mock unit and integration tests.
+📖 **Full Documentation & Command Reference**: [https://tig-doc-nine.vercel.app/](https://tig-doc-nine.vercel.app/)
 
 ---
 
-## Installation & Binary Paths
+## The Problem
 
-### Prerequisites
-Ensure `git` and `openssh-client` are installed:
+Developers frequently work with multiple Git accounts (e.g., personal GitHub, company Bitbucket, client GitLab). Managing this manually is frustrating and error-prone:
+- **SSH Key Collisions**: Standard SSH can't easily distinguish which private key to send when multiple accounts share the same host (`github.com` or `bitbucket.org`).
+- **Messy `~/.ssh/config`**: Developers are forced to hand-edit SSH configuration files with complex `Host` aliases and remember custom hostnames for every single clone.
+- **Wrong Author Commits**: Accidentally committing proprietary work code with your personal email, or personal side-projects with your company email.
+- **Machine Migration Friction**: Moving to a new laptop requires manually tracking down which keys belonged to which account and reconfiguring everything from scratch.
+
+---
+
+## How TIG Solves It
+
+TIG makes multi-account Git management invisible and frictionless:
+
+1. **Automated SSH Configuration & Key Management**:
+   Create a profile with `tig user add` and `tig user generate`. TIG automatically generates the SSH keypair, registers it with `ssh-agent`, and maintains your `~/.ssh/config` file without any manual editing.
+
+2. **Smart Origin Transformation**:
+   When you register a repository using standard Git URLs (e.g., `git@ssh.bitbucket.org:org/repo.git`), TIG automatically transforms the origin URL to route through the user's dedicated SSH Host alias (`user-alias:org/repo.git`). Git automatically uses the correct private key on clone and push.
+
+3. **Instant Profile Switching**:
+   Switching contexts is a single command (`tig user checkout <alias>`), which instantly updates your active global `git config` (`user.name` and `user.email`) to match.
+
+4. **Atomic TOML Storage & Safe Recovery**:
+   All profiles and repository relationships are stored in `~/.tig/organization.toml` using atomic writes to prevent corruption. Back up your workstation with `tig backup` and restore everything on a new machine with `tig restore`.
+
+---
+
+## Quick Start
+
+### Installation
+
 ```bash
-# Debian / Ubuntu
-sudo apt update && sudo apt install -y openssh-client git
-
-# macOS (Homebrew)
-brew install git openssh
-```
-
-### macOS Installation (Homebrew)
-Install via the official TIG Homebrew tap:
-```bash
+# macOS (Homebrew Tap)
 brew tap nirmta/tig
 brew install tig
-```
-*Installed path:*
-- Apple Silicon (M1/M2/M3/M4): `/opt/homebrew/bin/tig`
-- Intel Macs: `/usr/local/bin/tig`
 
-### Linux Installation (Debian / Ubuntu `.deb`)
-```bash
+# Linux (Debian / Ubuntu)
 wget https://github.com/nirmta/tig/releases/latest/download/tig_linux_amd64.deb
 sudo dpkg -i tig_linux_amd64.deb
 ```
-*Installed path:* `/usr/bin/tig`
 
-### Manual Download (GoReleaser Archives)
+*(Pre-compiled binaries for all architectures and Go installation options are available in the [Installation Guide](https://tig-doc-nine.vercel.app/installation/)).*
+
+### Basic Workflow
+
 ```bash
-# Linux
-curl -LO "https://github.com/nirmta/tig/releases/latest/download/tig_Linux_$(uname -m).tar.gz"
-tar -xzf tig_Linux_*.tar.gz
-sudo mv tig /usr/local/bin/
+# 1. Create a work identity
+tig user add -a work -n "Jane Doe" -e "jane@company.com" -H b
 
-# macOS
-curl -LO "https://github.com/nirmta/tig/releases/latest/download/tig_Darwin_$(uname -m).tar.gz"
-tar -xzf tig_Darwin_*.tar.gz
-sudo mv tig /usr/local/bin/
-```
-*Target system path:* `/usr/local/bin/tig`
+# 2. Switch to it and generate SSH credentials
+tig user checkout -a work
+tig user generate
 
-### Shell PATH Setup
-If you move the binary to `~/.local/bin` or use `go install`, ensure it is in your `PATH`:
-```bash
-# For zsh (~/.zshrc)
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+# 3. Add a repository (origin automatically adapts to the SSH profile)
+tig repository add -a api -o git@ssh.bitbucket.org:mycompany/backend-api.git
 
-# For bash (~/.bashrc)
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+# 4. Clone your tracked repositories
+tig repository clone
 ```
 
 ---
 
-## CLI Commands
+## Complete Documentation
 
-### User Management (`tig user`)
+Visit the official documentation site for complete command references, flags, architecture details, and guides:
 
-- **Add User Identity**:
-  ```bash
-  tig user add -a work -n "Jane Doe" -e "jane@company.com" -H b
-  # -H flag options: g (GitHub), b (Bitbucket), l (GitLab)
-  ```
+👉 **[https://tig-doc-nine.vercel.app/](https://tig-doc-nine.vercel.app/)**
 
-- **List Users**:
-  ```bash
-  tig user list
-  ```
-
-- **Switch Active User**:
-  ```bash
-  tig user checkout -a work
-  ```
-
-- **Generate SSH Key**:
-  ```bash
-  tig user generate
-  ```
-
-- **View Active Config & Public Key**:
-  ```bash
-  tig user config
-  ```
-
-- **Remove User**:
-  ```bash
-  tig user remove -a work
-  ```
-
-### Repository Management (`tig repository`)
-
-- **Add Repository** (Origin automatically transforms to alias routing):
-  ```bash
-  tig repository add -a backend -o git@ssh.bitbucket.org:mycompany/backend-api.git
-  # Saved in ~/.tig/organization.toml as: work:mycompany/backend-api.git
-  ```
-
-- **List Repositories**:
-  ```bash
-  tig repository list
-  ```
-
-- **Batch Clone Repositories**:
-  ```bash
-  tig repository clone
-  # Clones all active user repositories into ./work/<repo-alias>/
-  ```
-
-- **Remove Repository**:
-  ```bash
-  tig repository remove -a backend
-  ```
-
-### Backup & Disaster Recovery (`tig backup`, `tig restore`)
-
-- **Backup Configuration**:
-  ```bash
-  tig backup -o ~/tig-backup.toml
-  ```
-
-- **Restore Configuration & Regenerate SSH Setup**:
-  ```bash
-  tig restore -i ~/tig-backup.toml
-  ```
+- **[Installation Guide](https://tig-doc-nine.vercel.app/installation/)**: Homebrew, `.deb` packages, manual binary downloads, and shell PATH setup.
+- **[User Commands](https://tig-doc-nine.vercel.app/commands/user/)**: Identity registration, profile switching, SSH key generation, and config inspection.
+- **[Repository Commands](https://tig-doc-nine.vercel.app/commands/repository/)**: Registering repositories, smart origin transformation, listing, and batch cloning.
+- **[Backup & Disaster Recovery](https://tig-doc-nine.vercel.app/commands/backup_restore/)**: Machine migration, configuration export, and atomic restoration.
 
 ---
 
-## Documentation
+## Development & Testing
 
-Full documentation is available via MkDocs in [`doc/`](doc/):
-
-```bash
-docker compose up doc-live
-```
-Open **http://localhost:8081** to view the live documentation site:
-- [Installation Guide](doc/docs/installation.md)
-- [Architecture & Conventions Guide](doc/docs/conventions.md)
-- [User Commands Reference](doc/docs/commands/user.md)
-- [Repository Commands Reference](doc/docs/commands/repository.md)
-- [Backup & Restore Reference](doc/docs/commands/backup_restore.md)
-
----
-
-## Testing
-
-Run unit and integration tests inside Docker:
+To run the full suite of unit and mock-free integration tests:
 
 ```bash
 docker compose run --build --rm app-test
