@@ -63,6 +63,8 @@ func NewTestAppHarness(t *testing.T) *TestAppHarness {
 	removeRepositoryUseCase := usecase.NewRemoveRepositoryUseCase(orgRepo, gitService)
 	getRepositoriesUseCase := usecase.NewGetRepositoriesUseCase(orgRepo)
 	cloneRepositoryUseCase := usecase.NewDownloadRepositoriesUseCase(orgRepo, gitService, fsService)
+	backupUseCase := usecase.NewBackupUseCase(tomlService)
+	restoreUseCase := usecase.NewRestoreUseCase(tomlService, orgRepo, gitService)
 
 	printService := presenter.NewPrintService()
 
@@ -78,9 +80,13 @@ func NewTestAppHarness(t *testing.T) *TestAppHarness {
 	listRepositoriesCmd := cmd.NewListRepositoriesCmd(getRepositoriesUseCase, printService)
 	cloneRepositoriesCmd := cmd.NewCloneRepositoriesCmd(cloneRepositoryUseCase)
 
+	backupCmd := cmd.NewBackupCmd(backupUseCase, printService)
+	restoreCmd := cmd.NewRestoreCmd(restoreUseCase, printService)
+
 	commands := cli.Build(cli.CmdCollections{
 		User:       []cli.Command{addUserCmd, removeUserCmd, listUserCmd, checkoutUserCmd, listUserGitConfigCmd, generateKeysUser},
 		Repository: []cli.Command{addRepositoryCmd, removeRepositoryCmd, listRepositoriesCmd, cloneRepositoriesCmd},
+		Root:       []cli.Command{backupCmd, restoreCmd},
 	})
 
 	app := &urfave.App{
@@ -366,4 +372,55 @@ func TestCLI_Repository_Clone(t *testing.T) {
 	_ = err
 	userDir := filepath.Join(harness.TempDir, "clone-owner")
 	_ = userDir
+}
+
+func TestCLI_Backup_And_Restore_Commands(t *testing.T) {
+	// Arrange
+	harness := NewTestAppHarness(t)
+	backupPath := filepath.Join(harness.TempDir, "cli-backup.toml")
+
+	_ = harness.App.Run([]string{"tig", "user", "add", "-a", "tester", "-n", "Test User", "-e", "tester@tig.com", "-H", "g"})
+	_ = harness.App.Run([]string{"tig", "user", "checkout", "-a", "tester"})
+	_ = harness.App.Run([]string{"tig", "repository", "add", "-a", "tig-repo", "-o", "git@github.com:nirmta/tig.git"})
+
+	// Act 1: Backup via CLI
+	backupErr := harness.App.Run([]string{"tig", "backup", "-o", backupPath})
+
+	// Assert 1: File created
+	if backupErr != nil {
+		t.Fatalf("expected 'tig backup' to succeed: %v", backupErr)
+	}
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		t.Fatalf("expected backup file to exist at %s", backupPath)
+	}
+
+	// Act 2: Modify current state (simulate wipe)
+	_ = harness.App.Run([]string{"tig", "user", "remove", "-a", "tester"})
+	u, _ := harness.OrgRepo.GetUserByAlias("tester")
+	if u != nil {
+		t.Fatalf("precondition failed: user should be deleted")
+	}
+
+	// Act 3: Restore via CLI
+	restoreErr := harness.App.Run([]string{"tig", "restore", "-i", backupPath})
+
+	// Assert 3: Verified restored
+	if restoreErr != nil {
+		t.Fatalf("expected 'tig restore' to succeed: %v", restoreErr)
+	}
+
+	restored, err := harness.OrgRepo.GetUserByAlias("tester")
+	if err != nil || restored == nil {
+		t.Fatalf("expected user 'tester' to be restored")
+	}
+	if restored.Email() != "tester@tig.com" {
+		t.Errorf("expected email 'tester@tig.com', got %s", restored.Email())
+	}
+	repo := restored.FindRepositoryByAlias("tig-repo")
+	if repo == nil {
+		t.Fatalf("expected repository 'tig-repo' to be restored")
+	}
+	if repo.Origin() != "tester:nirmta/tig.git" {
+		t.Errorf("expected origin 'tester:nirmta/tig.git', got %s", repo.Origin())
+	}
 }

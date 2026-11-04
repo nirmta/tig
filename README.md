@@ -131,6 +131,18 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
   tig repository remove -a backend
   ```
 
+### Backup & Disaster Recovery (`tig backup`, `tig restore`)
+
+- **Backup Configuration**:
+  ```bash
+  tig backup -o ~/tig-backup.toml
+  ```
+
+- **Restore Configuration & Regenerate SSH Setup**:
+  ```bash
+  tig restore -i ~/tig-backup.toml
+  ```
+
 ---
 
 ## Documentation
@@ -145,6 +157,7 @@ Open **http://localhost:8081** to view the live documentation site:
 - [Architecture & Conventions Guide](doc/docs/conventions.md)
 - [User Commands Reference](doc/docs/commands/user.md)
 - [Repository Commands Reference](doc/docs/commands/repository.md)
+- [Backup & Restore Reference](doc/docs/commands/backup_restore.md)
 
 ---
 
