@@ -23,7 +23,7 @@ When you provide a standard Git SSH URL, `tig` rewrites the origin to match the 
 
 | Input Origin | Active User Alias | Saved Transformed Origin |
 | :--- | :---: | :--- |
-| `git@ssh.bitbucket.org:mobohubbv2/backend.git` | `work` | `work:mobohubbv2/backend.git` |
+| `git@ssh.bitbucket.org:mycompany/backend.git` | `work` | `work:mycompany/backend.git` |
 | `git@github.com:nirmta/tig.git` | `work` | `work:nirmta/tig.git` |
 | `git@gitlab.com:org/suborg/repo.git` | `work` | `work:org/suborg/repo.git` |
 | `ssh://git@github.com/nirmta/repo.git` | `work` | `work:nirmta/repo.git` |
@@ -31,7 +31,7 @@ When you provide a standard Git SSH URL, `tig` rewrites the origin to match the 
 ### Example
 
 ```bash
-tig repository add -a backend -o git@ssh.bitbucket.org:mobohubbv2/mobohubb-backend-v2.git
+tig repository add -a backend -o git@ssh.bitbucket.org:mycompany/backend-api.git
 ```
 
 ---
@@ -54,7 +54,7 @@ tig repository list
 ┌─────────┬───────────────────────────────────────────────┐
 │  ALIAS  │                    ORIGIN                     │
 ├─────────┼───────────────────────────────────────────────┤
-│ backend │ work:mobohubbv2/mobohubb-backend-v2.git       │
+│ backend │ work:mycompany/backend-api.git                │
 └─────────┴───────────────────────────────────────────────┘
 ```
 
