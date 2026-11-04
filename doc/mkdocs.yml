@@ -1,1 +1,12 @@
-site_name: My Docs
+site_name: TIG Documentation
+theme:
+  name: material
+
+nav:
+  - Overview: index.md
+  - Installation: installation.md
+  - Architecture & Conventions: conventions.md
+  - Commands:
+      - User Commands: commands/user.md
+      - Repository Commands: commands/repository.md
+      - Backup & Restore: commands/backup_restore.md

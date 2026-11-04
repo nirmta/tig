@@ -1,11 +1,20 @@
-package OrganizationEntity
+package organization
 
 import (
-	UserEntity "tig/app/domain/entities/user"
+	"tig/app/domain/entities/user"
 )
 
-func Constructor() *Organization {
+func New() *Organization {
 	return &Organization{
-		users: []*UserEntity.User{},
+		users: make([]*user.User, 0),
+	}
+}
+
+func Reconstitute(users []*user.User) *Organization {
+	if users == nil {
+		users = make([]*user.User, 0)
+	}
+	return &Organization{
+		users: users,
 	}
 }
