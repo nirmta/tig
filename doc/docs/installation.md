@@ -21,9 +21,9 @@ brew install git openssh
 
 ---
 
-## 2. GoReleaser Binary Distribution & Targets
+## 2. Supported Platforms & Architectures
 
-TIG is packaged and released via **GoReleaser** with automated cross-compilation for Linux, macOS, and Windows across `amd64` and `arm64` architectures:
+TIG provides pre-compiled binaries and packages for Linux, macOS, and Windows across `amd64` and `arm64` architectures:
 
 | Platform | Architecture | Archive / Package | Target Install Path |
 | :--- | :--- | :--- | :--- |
