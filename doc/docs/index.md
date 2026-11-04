@@ -4,12 +4,32 @@
 
 ---
 
-## Key Features
+## The Problem
 
-- **Multi-Identity Git Management**: Switch seamlessly between personal, work, and client identities.
-- **Automated OpenSSH Key Generation & Agent Integration**: Generates Ed25519 / RSA keys and maintains your `~/.ssh/config` file automatically.
-- **Smart Origin Transformation**: Automatically transforms repository clone origins (e.g., `git@ssh.bitbucket.org:...` or `git@github.com:...`) to route through user-specific SSH host aliases.
-- **Backup & Safe Recovery**: Effortlessly export and restore configurations across workstations.
+Developers frequently work with multiple Git accounts (e.g., personal GitHub, company Bitbucket, client GitLab). Managing this manually is frustrating and error-prone:
+
+- **SSH Key Collisions**: Standard SSH cannot easily distinguish which private key to send when multiple accounts share the same host (`github.com` or `bitbucket.org`).
+- **Messy `~/.ssh/config`**: Developers are forced to hand-edit SSH configuration files with complex `Host` aliases and remember custom hostnames for every single clone.
+- **Wrong Author Commits**: Accidentally committing proprietary work code with your personal email, or personal side-projects with your company email.
+- **Machine Migration Friction**: Moving to a new laptop requires manually tracking down which keys belonged to which account and reconfiguring everything from scratch.
+
+---
+
+## How TIG Solves It
+
+TIG makes multi-account Git management invisible and frictionless:
+
+1. **Automated SSH Configuration & Key Management**:
+   Create a profile with `tig user add` and `tig user generate`. TIG automatically generates the SSH keypair, registers it with `ssh-agent`, and maintains your `~/.ssh/config` file without any manual editing.
+
+2. **Smart Origin Transformation**:
+   When you register a repository using standard Git URLs (e.g., `git@ssh.bitbucket.org:org/repo.git`), TIG automatically transforms the origin URL to route through the user's dedicated SSH Host alias (`user-alias:org/repo.git`). Git automatically uses the correct private key on clone and push.
+
+3. **Instant Profile Switching**:
+   Switching contexts is a single command (`tig user checkout <alias>`), which instantly updates your active global `git config` (`user.name` and `user.email`) to match.
+
+4. **Atomic Storage & Safe Recovery**:
+   All profiles and repository relationships are stored in `~/.tig/organization.toml` using atomic writes to prevent corruption. Back up your workstation with `tig backup` and restore everything on a new machine with `tig restore`.
 
 ---
 
