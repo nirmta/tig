@@ -149,14 +149,3 @@ Collapsing errors into `bool` loses failure context (why did Git fail? permissio
 * **CLI Command Handlers**:
   - Keep commands thin: parse flags $\to$ map to UseCase Input DTO $\to$ invoke UseCase $\to$ format terminal output.
   - Zero business logic and zero direct disk/git manipulation in CLI command files.
-
----
-
-## 5. Clean-Up & Refactoring Checklist
-
-When refactoring the project to conform to these conventions:
-- [ ] **Remove root duplicates**: Delete `/domain`, `/application`, `/infrastructure`, `/representation` from project root.
-- [ ] **Rename packages**: Lowercase all packages (`UserEntity` $\to$ `user`, `usecases` $\to$ `usecase`, etc.).
-- [ ] **Adopt `snake_case.go`**: Standardize file names from `*.use-case.go` and `*.cmd.go` to standard Go `*_test.go` and `*.go`.
-- [ ] **Refactor return types**: Replace `bool` and `(bool, error)` with standard `error` / `(Result, error)` returns across all services and use cases.
-- [ ] **Context awareness**: Pass `context.Context` through use-case and service execution methods.

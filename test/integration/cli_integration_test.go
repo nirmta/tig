@@ -261,8 +261,8 @@ func TestCLI_Repository_Add_Success(t *testing.T) {
 		{
 			name:           "bitbucket with ssh subdomain",
 			alias:          "bb-repo",
-			origin:         "git@ssh.bitbucket.org:mycompany/backend-api.git",
-			expectedOrigin: "lead-dev:mycompany/backend-api.git",
+			origin:         "git@ssh.bitbucket.org:company/sample-backend.git",
+			expectedOrigin: "lead-dev:company/sample-backend.git",
 		},
 		{
 			name:           "gitlab standard scp",

@@ -112,7 +112,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 - **Add Repository** (Origin automatically transforms to alias routing):
   ```bash
   tig repository add -a backend -o git@ssh.bitbucket.org:mycompany/backend-api.git
-  # Saved in ~/.tig/db.toml as: work:mycompany/backend-api.git
+  # Saved in ~/.tig/organization.toml as: work:mycompany/backend-api.git
   ```
 
 - **List Repositories**:
