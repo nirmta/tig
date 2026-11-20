@@ -3,44 +3,34 @@ package cli
 import "github.com/urfave/cli/v2"
 
 type Command interface {
-	BuildSetting() *cli.Command
+	Build() *cli.Command
 }
 
-type CmdCollections struct {
-	User       []Command
-	Repository []Command
-	Root       []Command
-}
+func Build(commands []Command) []*cli.Command {
+	var commandsByCategory = make(map[Category][]*cli.Command)
 
-func Build(cmdCollections CmdCollections) []*cli.Command {
-	var userCmds []*cli.Command
-	for _, userCmd := range cmdCollections.User {
-		userCmds = append(userCmds, userCmd.BuildSetting())
+	for _, command := range commands {
+		builtCommand := command.Build()
+		category := Category(builtCommand.Category)
+		commandsByCategory[category] = append(commandsByCategory[category], builtCommand)
 	}
 
-	var repositoryCmds []*cli.Command
-	for _, repositoryCmd := range cmdCollections.Repository {
-		repositoryCmds = append(repositoryCmds, repositoryCmd.BuildSetting())
+	builtCommands := []*cli.Command{}
+
+	for category, parentCommand := range ParentCommands {
+		commands := commandsByCategory[category]
+
+		if len(commands) > 0 {
+			parentCommand.Subcommands = commands
+		}
+
+		if category == CategoryRoot {
+			builtCommands = append(builtCommands, commands...)
+			continue
+		}
+
+		builtCommands = append(builtCommands, parentCommand)
 	}
 
-	commands := []*cli.Command{
-		{
-			Name:        "user",
-			Aliases:     []string{"u"},
-			Usage:       "user operations",
-			Subcommands: userCmds,
-		},
-		{
-			Name:        "repository",
-			Aliases:     []string{"r"},
-			Usage:       "repository operations",
-			Subcommands: repositoryCmds,
-		},
-	}
-
-	for _, root := range cmdCollections.Root {
-		commands = append(commands, root.BuildSetting())
-	}
-
-	return commands
+	return builtCommands
 }

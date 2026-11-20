@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewAddUserCmd(addNewUserUseCase *usecase.AddNewUserUseCase) *AddUserCmd {
 	}
 }
 
-func (au *AddUserCmd) BuildSetting() *cli.Command {
+func (au *AddUserCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "add",
-		Aliases: []string{"a"},
-		Flags:   au.buildFlags(),
-		Usage:   "add a user",
-		Action:  au.buildAction,
+		Name:     "add",
+		Category: string(CategoryUser),
+		Aliases:  []string{"a"},
+		Flags:    au.buildFlags(),
+		Usage:    "add a user",
+		Action:   au.buildAction,
 	}
 }
 

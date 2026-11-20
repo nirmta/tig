@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewAddRepositoryCmd(addNewRepositoryUseCase *usecase.AddNewRepositoryUseCas
 	}
 }
 
-func (ar *AddRepositoryCmd) BuildSetting() *cli.Command {
+func (ar *AddRepositoryCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "add",
-		Aliases: []string{"a"},
-		Flags:   ar.buildFlags(),
-		Usage:   "add a repository",
-		Action:  ar.buildAction,
+		Name:     "add",
+		Category: string(CategoryRepository),
+		Aliases:  []string{"a"},
+		Flags:    ar.buildFlags(),
+		Usage:    "add a repository",
+		Action:   ar.buildAction,
 	}
 }
 

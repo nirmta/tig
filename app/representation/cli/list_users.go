@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -22,13 +22,14 @@ func NewListUsersCmd(
 	}
 }
 
-func (ld *ListUsersCmd) BuildSetting() *cli.Command {
+func (ld *ListUsersCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "list",
-		Aliases: []string{"ls"},
-		Flags:   ld.BuildFlags(),
-		Usage:   "list users",
-		Action:  ld.BuildAction,
+		Name:     "list",
+		Category: string(CategoryUser),
+		Aliases:  []string{"ls"},
+		Flags:    ld.BuildFlags(),
+		Usage:    "list users",
+		Action:   ld.BuildAction,
 	}
 }
 

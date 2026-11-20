@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewRemoveRepositoryCmd(removeRepositoryUseCase *usecase.RemoveRepositoryUse
 	}
 }
 
-func (rr *RemoveRepositoryCmd) BuildSetting() *cli.Command {
+func (rr *RemoveRepositoryCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "remove",
-		Aliases: []string{"rm"},
-		Flags:   rr.buildFlags(),
-		Usage:   "remove a repository",
-		Action:  rr.buildAction,
+		Name:     "remove",
+		Category: string(CategoryRepository),
+		Aliases:  []string{"rm"},
+		Flags:    rr.buildFlags(),
+		Usage:    "remove a repository",
+		Action:   rr.buildAction,
 	}
 }
 

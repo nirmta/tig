@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"fmt"
@@ -20,13 +20,14 @@ func NewBackupCmd(backupUseCase *usecase.BackupUseCase, printService *presenter.
 	}
 }
 
-func (bc *BackupCmd) BuildSetting() *cli.Command {
+func (bc *BackupCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "backup",
-		Aliases: []string{"b"},
-		Flags:   bc.buildFlags(),
-		Usage:   "backup tig configuration to a toml file",
-		Action:  bc.buildAction,
+		Name:     "backup",
+		Category: string(CategoryRoot),
+		Aliases:  []string{"b"},
+		Flags:    bc.buildFlags(),
+		Usage:    "backup tig configuration to a toml file",
+		Action:   bc.buildAction,
 	}
 }
 
