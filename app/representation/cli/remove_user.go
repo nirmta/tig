@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewRemoveUserCmd(removeUserUseCase *usecase.RemoveUserUseCase) *RemoveUserC
 	}
 }
 
-func (ru *RemoveUserCmd) BuildSetting() *cli.Command {
+func (ru *RemoveUserCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "remove",
-		Aliases: []string{"rm"},
-		Flags:   ru.buildFlags(),
-		Usage:   "remove a user",
-		Action:  ru.buildAction,
+		Name:     "remove",
+		Category: string(CategoryUser),
+		Aliases:  []string{"rm"},
+		Flags:    ru.buildFlags(),
+		Usage:    "remove a user",
+		Action:   ru.buildAction,
 	}
 }
 

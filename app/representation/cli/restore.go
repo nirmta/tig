@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"fmt"
@@ -20,12 +20,13 @@ func NewRestoreCmd(restoreUseCase *usecase.RestoreUseCase, printService *present
 	}
 }
 
-func (rc *RestoreCmd) BuildSetting() *cli.Command {
+func (rc *RestoreCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "restore",
-		Flags:   rc.buildFlags(),
-		Usage:   "restore tig configuration from a backup toml file",
-		Action:  rc.buildAction,
+		Name:     "restore",
+		Category: string(CategoryRoot),
+		Flags:    rc.buildFlags(),
+		Usage:    "restore tig configuration from a backup toml file",
+		Action:   rc.buildAction,
 	}
 }
 

@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -22,13 +22,14 @@ func NewListUserGitConfigCmd(
 	}
 }
 
-func (lugc *ListUserGitConfigCmd) BuildSetting() *cli.Command {
+func (lugc *ListUserGitConfigCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "config",
-		Aliases: []string{"s"},
-		Flags:   lugc.BuildFlags(),
-		Usage:   "list user git configs",
-		Action:  lugc.BuildAction,
+		Name:     "config",
+		Category: string(CategoryUser),
+		Aliases:  []string{"s"},
+		Flags:    lugc.BuildFlags(),
+		Usage:    "list user git configs",
+		Action:   lugc.BuildAction,
 	}
 }
 

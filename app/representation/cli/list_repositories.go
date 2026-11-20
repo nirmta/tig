@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -22,13 +22,14 @@ func NewListRepositoriesCmd(
 	}
 }
 
-func (ld *ListRepositoriesCmd) BuildSetting() *cli.Command {
+func (ld *ListRepositoriesCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "list",
-		Aliases: []string{"ls"},
-		Flags:   ld.BuildFlags(),
-		Usage:   "list repositories",
-		Action:  ld.BuildAction,
+		Name:     "list",
+		Category: string(CategoryRepository),
+		Aliases:  []string{"ls"},
+		Flags:    ld.BuildFlags(),
+		Usage:    "list repositories",
+		Action:   ld.BuildAction,
 	}
 }
 

@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewGenerateKeysUser(generateKeysUserUseCase *usecase.GenerateKeysUserUseCas
 	}
 }
 
-func (gku *GenerateKeysUser) BuildSetting() *cli.Command {
+func (gku *GenerateKeysUser) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "generate",
-		Aliases: []string{"g"},
-		Flags:   gku.BuildFlags(),
-		Usage:   "generate user ssh keys",
-		Action:  gku.BuildAction,
+		Name:     "generate",
+		Category: string(CategoryUser),
+		Aliases:  []string{"g"},
+		Flags:    gku.BuildFlags(),
+		Usage:    "generate user ssh keys",
+		Action:   gku.BuildAction,
 	}
 }
 

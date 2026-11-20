@@ -1,7 +1,7 @@
 package constants
 
 const (
-	BITBUCKET = "bitbucket.org"
+	BITBUCKET = "ssh.bitbucket.org"
 	GITHUB    = "github.com"
 	GITLAB    = "gitlab.com"
 )

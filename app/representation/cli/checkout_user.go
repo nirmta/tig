@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"tig/app/application/usecase"
@@ -16,13 +16,14 @@ func NewCheckoutUserCmd(checkoutUserUseCase *usecase.CheckoutUserUseCase) *Check
 	}
 }
 
-func (co *CheckoutUserCmd) BuildSetting() *cli.Command {
+func (co *CheckoutUserCmd) Build() *cli.Command {
 	return &cli.Command{
-		Name:    "checkout",
-		Aliases: []string{"co"},
-		Flags:   co.buildFlags(),
-		Usage:   "checkout user",
-		Action:  co.buildAction,
+		Name:     "checkout",
+		Category: string(CategoryUser),
+		Aliases:  []string{"co"},
+		Flags:    co.buildFlags(),
+		Usage:    "checkout user",
+		Action:   co.buildAction,
 	}
 }
 

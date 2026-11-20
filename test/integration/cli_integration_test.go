@@ -6,100 +6,41 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"tig/app/application/usecase"
-	"tig/app/domain/entities/organization"
+	"tig/app/bootstrap"
 	"tig/app/domain/entities/repository"
 	"tig/app/domain/entities/user"
-	"tig/app/infrastructure/consts"
 	"tig/app/infrastructure/persistence/repositories"
 	"tig/app/infrastructure/services"
-	"tig/app/representation/cli"
-	"tig/app/representation/cli/cmd"
-	"tig/app/representation/presenter"
 
 	urfave "github.com/urfave/cli/v2"
 )
 
 type TestAppHarness struct {
-	App      *urfave.App
-	TempDir  string
-	TomlPath string
-	OrgRepo  *repositories.OrganizationRepository
+	App     *urfave.App
+	TempDir string
+	OrgRepo *repositories.OrganizationRepository
 }
 
 func NewTestAppHarness(t *testing.T) *TestAppHarness {
 	tempDir := t.TempDir()
+	t.Setenv("HOME", tempDir)
 
-	origHome := os.Getenv("HOME")
-	os.Setenv("HOME", tempDir)
-	t.Cleanup(func() {
-		os.Setenv("HOME", origHome)
-	})
+	app, err := bootstrap.InitializeApp()
+	if err != nil {
+		t.Fatalf("failed to initialize app: %v", err)
+	}
+	app.Writer = io.Discard
+	app.ErrWriter = io.Discard
 
-	tomlService := services.NewTomlService()
 	fsService := services.NewFsService()
-
-	systemFolder := fsService.GetFolderPath([]string{consts.FOLDER})
-	if err := fsService.CreateDirectory(systemFolder); err != nil {
-		t.Fatalf("failed to create test directory: %v", err)
-	}
-
-	tomlPath := fsService.GetFolderPath([]string{consts.FOLDER, tomlService.AddExtension(consts.FILE_NAME)})
-	if err := tomlService.CreateFile(organization.New(), systemFolder, consts.FILE_NAME); err != nil {
-		t.Fatalf("failed to initialize test toml: %v", err)
-	}
-
+	tomlService := services.NewTomlService()
 	gitService := services.NewGitService(fsService)
 	orgRepo := repositories.NewOrganizationRepository(tomlService, fsService, gitService)
 
-	newGetUsersUseCase := usecase.NewGetUsersUseCase(orgRepo, gitService)
-	addNewUserUseCase := usecase.NewAddNewUserUseCase(orgRepo, gitService)
-	removeUserUseCase := usecase.NewRemoveUserUseCase(orgRepo, gitService)
-	checkoutUserUseCase := usecase.NewCheckoutUserUseCase(orgRepo, gitService)
-	getUserGitConfigUseCase := usecase.NewGetUserGitConfigUseCase(orgRepo, gitService)
-	generateKeysUserUseCase := usecase.NewGenerateKeysUserUseCase(orgRepo, gitService)
-
-	addRepositoryUseCase := usecase.NewAddNewRepositoryUseCase(orgRepo, gitService)
-	removeRepositoryUseCase := usecase.NewRemoveRepositoryUseCase(orgRepo, gitService)
-	getRepositoriesUseCase := usecase.NewGetRepositoriesUseCase(orgRepo)
-	cloneRepositoryUseCase := usecase.NewDownloadRepositoriesUseCase(orgRepo, gitService, fsService)
-	backupUseCase := usecase.NewBackupUseCase(tomlService)
-	restoreUseCase := usecase.NewRestoreUseCase(tomlService, orgRepo, gitService)
-
-	printService := presenter.NewPrintService()
-
-	addUserCmd := cmd.NewAddUserCmd(addNewUserUseCase)
-	removeUserCmd := cmd.NewRemoveUserCmd(removeUserUseCase)
-	listUserCmd := cmd.NewListUsersCmd(newGetUsersUseCase, printService)
-	checkoutUserCmd := cmd.NewCheckoutUserCmd(checkoutUserUseCase)
-	listUserGitConfigCmd := cmd.NewListUserGitConfigCmd(getUserGitConfigUseCase, printService)
-	generateKeysUser := cmd.NewGenerateKeysUser(generateKeysUserUseCase)
-
-	addRepositoryCmd := cmd.NewAddRepositoryCmd(addRepositoryUseCase)
-	removeRepositoryCmd := cmd.NewRemoveRepositoryCmd(removeRepositoryUseCase)
-	listRepositoriesCmd := cmd.NewListRepositoriesCmd(getRepositoriesUseCase, printService)
-	cloneRepositoriesCmd := cmd.NewCloneRepositoriesCmd(cloneRepositoryUseCase)
-
-	backupCmd := cmd.NewBackupCmd(backupUseCase, printService)
-	restoreCmd := cmd.NewRestoreCmd(restoreUseCase, printService)
-
-	commands := cli.Build(cli.CmdCollections{
-		User:       []cli.Command{addUserCmd, removeUserCmd, listUserCmd, checkoutUserCmd, listUserGitConfigCmd, generateKeysUser},
-		Repository: []cli.Command{addRepositoryCmd, removeRepositoryCmd, listRepositoriesCmd, cloneRepositoriesCmd},
-		Root:       []cli.Command{backupCmd, restoreCmd},
-	})
-
-	app := &urfave.App{
-		Name:     "tig",
-		Commands: commands,
-		Writer:   io.Discard,
-	}
-
 	return &TestAppHarness{
-		App:      app,
-		TempDir:  tempDir,
-		TomlPath: tomlPath,
-		OrgRepo:  orgRepo,
+		App:     app,
+		TempDir: tempDir,
+		OrgRepo: orgRepo,
 	}
 }
 
